@@ -1,0 +1,4 @@
+Sample,rsID,Chrom,Pos,Ref,Alt,GT
+Synthetic_Mother_Low,rs429358,19,44908684,T,C,0/0
+Synthetic_Mother_Low,rs7412,19,44908822,C,T,1/1
+Synthetic_Mother_Low,rs3851179,11,86157598,T,C,0/0

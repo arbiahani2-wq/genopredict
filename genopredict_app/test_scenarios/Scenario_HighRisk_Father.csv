@@ -1,0 +1,4 @@
+Sample,rsID,Chrom,Pos,Ref,Alt,GT
+Synthetic_Father_High,rs429358,19,44908684,T,C,1/1
+Synthetic_Father_High,rs7412,19,44908822,C,T,0/0
+Synthetic_Father_High,rs3851179,11,86157598,T,C,0/1

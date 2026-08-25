@@ -1,0 +1,5 @@
+Sample,rsID,Gene,GT,GT_Num,Age,Sex,FamilyHistory
+Mother_01,rs429358,APOE,0/0,0,68,0,1
+Mother_01,rs7412,APOE,0/0,0,68,0,1
+Mother_01,rs3851179,PICALM,1/1,2,68,0,1
+Mother_01,rs11136000,CLU,0/0,0,68,0,1

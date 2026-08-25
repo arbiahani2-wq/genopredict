@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenoPredict AD — Analyse du Risque Génomique</title>
+    <meta name="description" content="Évaluez le risque polygénique de transmission de la maladie d'Alzheimer grâce à l'intelligence artificielle.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><circle cx='18' cy='18' r='18' fill='%2310b981'/><text x='10' y='24' font-size='18' fill='white'>🧬</text></svg>" type="image/svg+xml">
+</head>
+<body>
+
+<!-- Floating background particles -->
+<div class="bg-particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<!-- Toast notification container -->
+<div class="toast-container" id="toast-container"></div>
+
+<div id="app">
+
+  <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+  <aside id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="url(#bg)"/><path d="M13 10c0 0 5 3 5 8s-5 8-5 8" stroke="white" stroke-width="2.2" stroke-linecap="round"/><path d="M23 10c0 0-5 3-5 8s5 8 5 8" stroke="rgba(255,255,255,.55)" stroke-width="2.2" stroke-linecap="round"/><path d="M10 16h16M10 20h16" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".7"/><defs><linearGradient id="bg" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#10b981"/><stop offset="1" stop-color="#059669"/></linearGradient></defs></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">GenoPredict</span>
+        <span class="brand-tag">AD · v2.0</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Navigation</p>
+      <nav>
+        <button class="nav-btn active" id="nav-1" onclick="goToStep(1)">
+          <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></span>
+          <span class="nav-label">Accueil</span>
+          <span class="nav-step-badge">1</span>
+        </button>
+        <button class="nav-btn" id="nav-2" onclick="goToStep(2)">
+          <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-label">Importation ADN</span>
+          <span class="nav-step-badge">2</span>
+        </button>
+        <button class="nav-btn" id="nav-3" onclick="goToStep(3)">
+          <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></span>
+          <span class="nav-label">Paramètres</span>
+          <span class="nav-step-badge">3</span>
+        </button>
+        <button class="nav-btn" id="nav-4">
+          <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span>
+          <span class="nav-label">Résultats</span>
+          <span class="nav-step-badge">4</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="sidebar-info-cards">
+      <div class="info-card green">
+        <div class="info-card-icon">🔒</div>
+        <div>
+          <p class="info-card-title">100% Local</p>
+          <p class="info-card-desc">Données traitées en local, jamais envoyées.</p>
+        </div>
+      </div>
+      <div class="info-card blue">
+        <div class="info-card-icon">🤖</div>
+        <div>
+          <p class="info-card-title">IA Random Forest</p>
+          <p class="info-card-desc">Modèle entraîné sur 5 000 profils synthétiques.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <p>GenoPredict AD · Outil de recherche</p>
+      <p>Ne remplace pas un avis médical</p>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+  <div id="main">
+
+    <!-- TOPBAR -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <span class="topbar-page-title" id="page-title">Accueil</span>
+        <div class="breadcrumb">
+          <span>GenoPredict</span>
+          <svg viewBox="0 0 16 16" fill="currentColor" width="12"><path d="M6 12l4-4-4-4"/></svg>
+          <span id="breadcrumb-page">Accueil</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="step-tracker">
+          <div class="step-track-item done-track" id="track-1">
+            <div class="track-circle" id="tc-1"><span>1</span></div>
+            <span class="track-label">Accueil</span>
+          </div>
+          <div class="track-line" id="tl-1"></div>
+          <div class="step-track-item" id="track-2">
+            <div class="track-circle" id="tc-2"><span>2</span></div>
+            <span class="track-label">ADN</span>
+          </div>
+          <div class="track-line" id="tl-2"></div>
+          <div class="step-track-item" id="track-3">
+            <div class="track-circle" id="tc-3"><span>3</span></div>
+            <span class="track-label">Paramètres</span>
+          </div>
+          <div class="track-line" id="tl-3"></div>
+          <div class="step-track-item" id="track-4">
+            <div class="track-circle" id="tc-4"><span>4</span></div>
+            <span class="track-label">Résultats</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main id="content">
+
+      <!-- ══════ STEP 1: HOME ══════ -->
+      <section id="step-1" class="step-page">
+        <div class="hero-card">
+          <div class="hero-left">
+            <div class="hero-eyebrow">
+              <span class="eyebrow-dot"></span>
+              Intelligence Génomique · Alzheimer Risk Prediction
+            </div>
+            <h1 class="hero-title">Évaluez le Risque<br>Polygénique <span class="title-highlight">d'Alzheimer</span></h1>
+            <p class="hero-desc">Notre modèle d'IA simule <strong>1 000 combinaisons génétiques</strong> en suivant les lois de Mendel pour estimer la probabilité de transmission de la maladie au sein de votre famille.</p>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <span class="stat-n">3</span>
+                <span class="stat-d">Marqueurs SNP analysés</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="hero-stat">
+                <span class="stat-n">1 000</span>
+                <span class="stat-d">Simulations par analyse</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="hero-stat">
+                <span class="stat-n">5 000</span>
+                <span class="stat-d">Profils d'entraînement</span>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn-primary lg" onclick="goToStep(2)">
+                <div class="play-icon-circle">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div>Commencer<br>l'analyse</div>
+              </button>
+              <a class="btn-ghost" href="#how-it-works">Comment ça marche ?</a>
+            </div>
+          </div>
+          <div class="hero-right">
+            <div class="snp-showcase">
+              <div class="snp-showcase-header">
+                <span class="snp-badge">
+                  <svg viewBox="0 0 16 16" fill="currentColor" width="14" style="margin-right: 6px;"><path fill-rule="evenodd" d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.5 4.5a.5.5 0 00-1 0v4a.5.5 0 001 0v-4zM5.5 5.5a.5.5 0 011 0v4a.5.5 0 01-1 0v-4z" clip-rule="evenodd"/></svg>
+                  Marqueurs Analysés
+                </span>
+              </div>
+              <div class="snp-item risk-high">
+                <div class="snp-left">
+                  <div class="snp-dot red"></div>
+                  <div>
+                    <p class="snp-id">rs429358</p>
+                    <p class="snp-gene">Gène APOE · Chromosome 19</p>
+                  </div>
+                </div>
+                <div class="snp-tag danger">Risque majeur</div>
+              </div>
+              <div class="snp-item risk-prot">
+                <div class="snp-left">
+                  <div class="snp-dot green"></div>
+                  <div>
+                    <p class="snp-id">rs7412</p>
+                    <p class="snp-gene">Gène APOE · Chromosome 19</p>
+                  </div>
+                </div>
+                <div class="snp-tag protective">Protecteur</div>
+              </div>
+              <div class="snp-item risk-mod">
+                <div class="snp-left">
+                  <div class="snp-dot amber"></div>
+                  <div>
+                    <p class="snp-id">rs3851179</p>
+                    <p class="snp-gene">Gène PICALM · Chromosome 11</p>
+                  </div>
+                </div>
+                <div class="snp-tag moderate">Risque mineur</div>
+              </div>
+              <div class="snp-footer">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                Données analysées localement · Aucun envoi serveur
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-section" id="how-it-works">
+          <div class="workflow-header">
+            <h2>Comment fonctionne l'analyse ?</h2>
+            <p>Un processus en 3 étapes guidées, de l'importation à l'interprétation.</p>
+          </div>
+          <div class="workflow-steps">
+            <div class="wf-step">
+              <div class="wf-num">01</div>
+              <div class="wf-icon-box green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 12l-4-4m0 0L8 12m4-4v12"/></svg>
+              </div>
+              <h3>Importation des profils ADN</h3>
+              <p>Chargez les fichiers CSV de génotypage du père et de la mère. Le système valide automatiquement la présence des marqueurs APOE et PICALM.</p>
+            </div>
+            <div class="wf-connector">
+              <svg viewBox="0 0 40 20" fill="none"><path d="M0 10h35M30 5l5 5-5 5" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="wf-step">
+              <div class="wf-num">02</div>
+              <div class="wf-icon-box blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+              </div>
+              <h3>Simulation Mendélienne</h3>
+              <p>Le moteur génère 1 000 enfants virtuels en tirant aléatoirement un allèle de chaque parent pour chaque SNP, selon la loi de ségrégation de Mendel.</p>
+            </div>
+            <div class="wf-connector">
+              <svg viewBox="0 0 40 20" fill="none"><path d="M0 10h35M30 5l5 5-5 5" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="wf-step">
+              <div class="wf-num">03</div>
+              <div class="wf-icon-box purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              </div>
+              <h3>Prédiction & Rapport</h3>
+              <p>Chaque profil enfant est soumis au modèle Random Forest. Le résultat final est une distribution de risque statistique avec des recommandations personnalisées.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ STEP 2: UPLOAD ══════ -->
+      <section id="step-2" class="step-page hidden">
+        <div class="page-header">
+          <div>
+            <h2>Importation des Profils ADN</h2>
+            <p class="page-sub">Chargez les fichiers CSV de génotypage parentaux. Format requis : colonnes <code>rsID</code>, <code>GT</code>, <code>Ref</code>, <code>Alt</code>.</p>
+          </div>
+          <div class="format-hint">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+            Format : fichiers <code>father_genotype.csv</code> / <code>mother_genotype.csv</code>
+          </div>
+        </div>
+
+        <div class="upload-duo">
+          <!-- Father -->
+          <div class="upload-box" id="box-father">
+            <div class="upload-box-header">
+              <div class="parent-avatar father">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+              </div>
+              <div>
+                <h3>Profil Génétique — Père</h3>
+                <p>Fichier CSV de génotypage paternel</p>
+              </div>
+              <div class="box-status-dot" id="dot-father"></div>
+            </div>
+            <div class="drop-area" id="da-father" onclick="document.getElementById('in-father').click()">
+              <input type="file" id="in-father" accept=".csv" class="inp-hidden">
+              <div class="drop-idle" id="drop-idle-father">
+                <div class="drop-icon-ring">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <p class="drop-main">Glissez le fichier ou <span class="drop-link">cliquez pour parcourir</span></p>
+                <p class="drop-hint">CSV · max 10 MB</p>
+              </div>
+              <div class="drop-success hidden" id="drop-ok-father">
+                <div class="ok-icon">✓</div>
+                <p class="ok-filename" id="fname-father">—</p>
+                <p class="ok-count" id="fcount-father">— variants</p>
+              </div>
+            </div>
+            <div class="marker-check" id="markers-father" style="display:none">
+              <div class="mc-title">Marqueurs détectés</div>
+              <div class="mc-chips" id="chips-father"></div>
+            </div>
+          </div>
+
+          <!-- Mother -->
+          <div class="upload-box" id="box-mother">
+            <div class="upload-box-header">
+              <div class="parent-avatar mother">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+              </div>
+              <div>
+                <h3>Profil Génétique — Mère</h3>
+                <p>Fichier CSV de génotypage maternel</p>
+              </div>
+              <div class="box-status-dot" id="dot-mother"></div>
+            </div>
+            <div class="drop-area" id="da-mother" onclick="document.getElementById('in-mother').click()">
+              <input type="file" id="in-mother" accept=".csv" class="inp-hidden">
+              <div class="drop-idle" id="drop-idle-mother">
+                <div class="drop-icon-ring">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <p class="drop-main">Glissez le fichier ou <span class="drop-link">cliquez pour parcourir</span></p>
+                <p class="drop-hint">CSV · max 10 MB</p>
+              </div>
+              <div class="drop-success hidden" id="drop-ok-mother">
+                <div class="ok-icon">✓</div>
+                <p class="ok-filename" id="fname-mother">—</p>
+                <p class="ok-count" id="fcount-mother">— variants</p>
+              </div>
+            </div>
+            <div class="marker-check" id="markers-mother" style="display:none">
+              <div class="mc-title">Marqueurs détectés</div>
+              <div class="mc-chips" id="chips-mother"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-actions" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 28px; padding: 24px; background: #fff; border: 1px dashed var(--gray-300); border-radius: var(--r-lg);">
+          <p style="font-size: 13.5px; color: var(--gray-500); margin-bottom: 14px; font-weight: 500;">Vous n'avez pas de fichiers génétiques sous la main ?</p>
+          <button class="btn-ghost" onclick="loadDemoFiles()" id="btn-demo" style="border-color:var(--green-300); color:var(--green-700); background:var(--green-50);">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" style="margin-right: 6px;"><path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/></svg>
+            Charger les données de démonstration
+          </button>
+        </div>
+
+        <div class="upload-apoe-alert hidden" id="apoe-alert">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Marqueurs APOE (rs429358 / rs7412) détectés — analyse de haute précision possible.
+        </div>
+
+        <div class="page-actions">
+          <button class="btn-ghost" onclick="goToStep(1)">← Retour</button>
+          <button class="btn-primary" id="btn-upload-next" disabled onclick="goToStep(3)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Valider et continuer
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════ STEP 3: PARAMETERS ══════ -->
+      <section id="step-3" class="step-page hidden">
+        <div class="page-header">
+          <div>
+            <h2>Paramètres Cliniques</h2>
+            <p class="page-sub">Configurez les variables de la simulation. Ces facteurs influencent directement le score de risque polygénique calculé.</p>
+          </div>
+        </div>
+
+        <div class="params-layout">
+          <div class="params-col">
+            <div class="param-block">
+              <div class="param-block-header">
+                <div class="param-icon age-icon">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                </div>
+                <div>
+                  <h3>Âge cible de projection</h3>
+                  <p>Horizon temporel de l'évaluation du risque.</p>
+                </div>
+              </div>
+              <div class="age-slider-box">
+                <div class="age-value-display">
+                  <span id="age-big">75</span>
+                  <span class="age-unit-label">ans</span>
+                </div>
+                <input type="range" id="age-range" min="50" max="100" value="75" class="premium-range">
+                <div class="range-labels">
+                  <span>50 ans</span>
+                  <span>75 ans</span>
+                  <span>100 ans</span>
+                </div>
+              </div>
+              <div class="risk-age-note">
+                <div class="risk-note-bar" id="risk-note-bar"></div>
+                <p id="risk-note-text">Risque modéré pour cet âge.</p>
+              </div>
+            </div>
+
+            <div class="param-block">
+              <div class="param-block-header">
+                <div class="param-icon sex-icon">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+                </div>
+                <div>
+                  <h3>Sexe des enfants simulés</h3>
+                  <p>Le risque d'Alzheimer est légèrement plus élevé chez les femmes.</p>
+                </div>
+              </div>
+              <div class="sex-cards">
+                <label class="sex-card">
+                  <input type="radio" name="sex" value="mixed" checked>
+                  <div class="sex-card-inner">
+                    <span class="sex-emoji">👫</span>
+                    <span>Mixte</span>
+                    <small>50 / 50</small>
+                  </div>
+                </label>
+                <label class="sex-card">
+                  <input type="radio" name="sex" value="female">
+                  <div class="sex-card-inner">
+                    <span class="sex-emoji">👩</span>
+                    <span>Filles</span>
+                    <small>100%</small>
+                  </div>
+                </label>
+                <label class="sex-card">
+                  <input type="radio" name="sex" value="male">
+                  <div class="sex-card-inner">
+                    <span class="sex-emoji">👨</span>
+                    <span>Garçons</span>
+                    <small>100%</small>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="params-col">
+            <div class="param-block tall">
+              <div class="param-block-header">
+                <div class="param-icon fh-icon">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                </div>
+                <div>
+                  <h3>Antécédents familiaux</h3>
+                  <p>Augmente le score de risque de base.</p>
+                </div>
+              </div>
+              <label class="big-toggle">
+                <input type="checkbox" id="fh-toggle">
+                <div class="big-toggle-body">
+                  <div class="big-toggle-track">
+                    <div class="big-toggle-thumb"></div>
+                  </div>
+                  <div class="big-toggle-text">
+                    <p class="btt-title">Antécédents familiaux connus</p>
+                    <p class="btt-desc">Un ou plusieurs membres de la famille (grands-parents, oncles, tantes) diagnostiqués avec la maladie d'Alzheimer.</p>
+                  </div>
+                </div>
+              </label>
+              <div class="fh-impact hidden" id="fh-impact">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                Les antécédents familiaux ajoutent +15 points au score de risque de base.
+              </div>
+            </div>
+
+            <div class="sim-summary-box">
+              <p class="sim-summary-title">Récapitulatif de la simulation</p>
+              <div class="sim-summary-row"><span>Enfants virtuels</span><strong>1 000</strong></div>
+              <div class="sim-summary-row"><span>Âge projection</span><strong id="sum-age">75 ans</strong></div>
+              <div class="sim-summary-row"><span>Sexe</span><strong id="sum-sex">Mixte</strong></div>
+              <div class="sim-summary-row"><span>Antécédents</span><strong id="sum-fh">Non</strong></div>
+              <div class="sim-summary-row snps"><span>SNPs analysés</span>
+                <div class="sum-snps">
+                  <span class="ss danger">rs429358</span>
+                  <span class="ss protective">rs7412</span>
+                  <span class="ss moderate">rs3851179</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn-ghost" onclick="goToStep(2)">← Retour</button>
+          <button class="btn-primary" onclick="runSimulation()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+            Lancer la simulation
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════ STEP 4: RESULTS ══════ -->
+      <section id="step-4" class="step-page hidden">
+
+        <!-- Loading -->
+        <div id="loading-view">
+          <div class="loading-hero">
+            <div class="dna-spin">
+              <div class="dna-ring r1"></div>
+              <div class="dna-ring r2"></div>
+              <div class="dna-ring r3"></div>
+              <div class="dna-center">🧬</div>
+            </div>
+            <h2 id="load-title">Simulation en cours…</h2>
+            <p id="load-msg">Initialisation du moteur mendélien</p>
+            <div class="load-progress">
+              <div class="load-bar" id="load-bar"></div>
+            </div>
+            <div class="load-steps">
+              <div class="load-step" id="ls-1"><span class="ls-check">○</span> Initialisation</div>
+              <div class="load-step" id="ls-2"><span class="ls-check">○</span> Simulation</div>
+              <div class="load-step" id="ls-3"><span class="ls-check">○</span> Inférence IA</div>
+              <div class="load-step" id="ls-4"><span class="ls-check">○</span> Rapport</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results-view" class="hidden">
+          <div class="results-topbar">
+            <div>
+              <h2>Tableau de Bord · Résultats</h2>
+              <p class="page-sub" id="results-subtitle">Basé sur 1 000 simulations mendéliennes — analyse complète.</p>
+            </div>
+            <div class="results-actions">
+              <button class="btn-ghost sm" onclick="location.reload()">↺ Nouvelle analyse</button>
+            </div>
+          </div>
+
+          <!-- Risk Banner -->
+          <div class="risk-banner" id="risk-banner">
+            <div class="rb-left">
+              <div class="rb-score" id="rb-score">--%</div>
+              <div class="rb-label" id="rb-label">Score de risque moyen</div>
+            </div>
+            <div class="rb-mid" id="rb-interpretation"></div>
+            <div class="rb-right">
+              <div class="rb-stat"><span id="rb-high">--</span><small>enfants haut risque</small></div>
+              <div class="rb-divider"></div>
+              <div class="rb-stat"><span>1000</span><small>simulations</small></div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid -->
+          <div class="dash-grid">
+            <!-- Gauge -->
+            <div class="dash-card card-gauge">
+              <div class="card-title-row">
+                <span class="card-title">Risque Global</span>
+                <span class="card-pill" id="gauge-pill">—</span>
+              </div>
+              <div class="gauge-area">
+                <canvas id="cGauge" width="280" height="160"></canvas>
+                <div class="gauge-center-text">
+                  <span id="g-score">--%</span>
+                  <small id="g-level">—</small>
+                </div>
+              </div>
+              <div class="gauge-legend">
+                <span class="gl-dot green"></span> Faible &lt;30%
+                <span class="gl-dot amber" style="margin-left:12px"></span> Modéré 30–60%
+                <span class="gl-dot red" style="margin-left:12px"></span> Élevé &gt;60%
+              </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="dash-card card-metrics">
+              <div class="card-title-row"><span class="card-title">Métriques Génétiques</span></div>
+              <div class="metrics-stack">
+                <div class="mrow">
+                  <div class="mrow-icon g-bg"><svg viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></div>
+                  <div class="mrow-body"><span class="mrow-val" id="m-total">1000</span><span class="mrow-lbl">Simulations totales</span></div>
+                  <div class="mrow-bar-wrap"><div class="mrow-bar" style="width:100%;background:var(--green-200)"></div></div>
+                </div>
+                <div class="mrow">
+                  <div class="mrow-icon r-bg"><svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg></div>
+                  <div class="mrow-body"><span class="mrow-val" id="m-high">--</span><span class="mrow-lbl">Profils haut risque (&gt;50%)</span></div>
+                  <div class="mrow-bar-wrap"><div class="mrow-bar r-bar" id="bar-high"></div></div>
+                </div>
+                <div class="mrow">
+                  <div class="mrow-icon a-bg"><svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 112 0v1a1 1 0 11-2 0v-1zm0-4a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd"/></svg></div>
+                  <div class="mrow-body"><span class="mrow-val" id="m-apoe">--%</span><span class="mrow-lbl">APOE ε4/ε4 (rs429358 C/C)</span></div>
+                  <div class="mrow-bar-wrap"><div class="mrow-bar a-bar" id="bar-apoe"></div></div>
+                </div>
+                <div class="mrow">
+                  <div class="mrow-icon b-bg"><svg viewBox="0 0 20 20" fill="currentColor" width="16"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg></div>
+                  <div class="mrow-body"><span class="mrow-val" id="m-picalm">--%</span><span class="mrow-lbl">PICALM (rs3851179 C/C)</span></div>
+                  <div class="mrow-bar-wrap"><div class="mrow-bar b-bar" id="bar-picalm"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Histogram full width -->
+            <div class="dash-card card-hist">
+              <div class="card-title-row">
+                <span class="card-title">Distribution du Risque · 1 000 Enfants Virtuels</span>
+                <div class="hist-legend">
+                  <span class="hl g">■ Faible</span>
+                  <span class="hl a">■ Modéré</span>
+                  <span class="hl r">■ Élevé</span>
+                </div>
+              </div>
+              <div class="hist-wrap"><canvas id="cHist"></canvas></div>
+            </div>
+
+            <!-- Interpretation -->
+            <div class="dash-card card-interp">
+              <div class="card-title-row"><span class="card-title">Interprétation Clinique</span></div>
+              <div class="interp-content" id="interp-content"></div>
+            </div>
+
+          </div><!-- /dash-grid -->
+
+          <!-- Recommendations -->
+          <div class="reco-section">
+            <div class="reco-header">
+              <h3>Recommandations Préventives</h3>
+              <p>Même avec un risque génétique élevé, le mode de vie peut <strong>réduire les symptômes de 40%</strong>.</p>
+            </div>
+            <div class="reco-grid">
+              <div class="reco-card">
+                <div class="reco-icon-box" style="background:var(--blue-50);">🧠</div>
+                <h4>Stimulation Cognitive</h4>
+                <ul>
+                  <li>Apprentissage de nouvelles langues</li>
+                  <li>Jeux de stratégie (Échecs, Sudoku)</li>
+                  <li>Lecture quotidienne</li>
+                  <li>Cours en ligne, ateliers</li>
+                </ul>
+              </div>
+              <div class="reco-card">
+                <div class="reco-icon-box" style="background:#fef3c7;">🥑</div>
+                <h4>Nutrition — Mind Diet</h4>
+                <ul>
+                  <li>Légumes à feuilles vertes</li>
+                  <li>Baies et fruits rouges</li>
+                  <li>Noix et Huile d'olive vierge extra</li>
+                  <li>Poisson gras (Oméga-3) 1×/semaine</li>
+                </ul>
+              </div>
+              <div class="reco-card">
+                <div class="reco-icon-box" style="background:#f0fdf4;">🏃</div>
+                <h4>Activité Physique</h4>
+                <ul>
+                  <li>150 min de cardio modéré / semaine</li>
+                  <li>Marche rapide quotidienne</li>
+                  <li>Yoga ou tai-chi pour l'équilibre</li>
+                  <li>Sommeil de qualité (7–8h/nuit)</li>
+                </ul>
+              </div>
+              <div class="reco-card">
+                <div class="reco-icon-box" style="background:#fdf2f8;">🩺</div>
+                <h4>Suivi Médical</h4>
+                <ul>
+                  <li>Bilan neurologique annuel</li>
+                  <li>Contrôle cardiovasculaire</li>
+                  <li>Consultation en génétique médicale</li>
+                  <li>Test cognitif MoCA tous les 2 ans</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="disclaimer-box">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+            <p><strong>Avertissement :</strong> Cet outil est destiné à la recherche et à l'éducation uniquement. Il ne constitue pas un diagnostic médical. Les résultats sont basés sur des données synthétiques et ne peuvent pas remplacer une consultation avec un professionnel de santé qualifié.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Confetti container (spawned by JS) -->
+<div class="confetti-container" id="confetti"></div>
+
+<script src="app.js?v=2"></script>
+</body>
+</html>
