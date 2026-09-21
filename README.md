@@ -144,7 +144,20 @@ rs3851179,11,85868640,A,C,0/1
 
 ## 🌐 Deployment
 
-### Option 1 — Vercel (Recommended)
+> **Already live?** → 🤗 [huggingface.co/spaces/haniy5/genopredict](https://huggingface.co/spaces/haniy5/genopredict)
+
+### Option 1 — Render.com ✅ Recommended for ML
+
+Best choice for this project — no serverless bundle size limits, full Python runtime.
+
+1. Go to [render.com](https://render.com) → **New Web Service**
+2. Connect `arbiahani2-wq/GenoPredict-` from GitHub
+3. Render auto-detects `render.yaml` — no extra config needed
+4. Click **Deploy**
+
+### Option 2 — Vercel
+
+> ⚠️ Note: Vercel serverless functions have a 250MB bundle limit. The Python ML dependencies (scikit-learn + pandas + numpy) are large — if the build fails, use Render instead.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/arbiahani2-wq/GenoPredict-)
 
@@ -154,13 +167,6 @@ Or manually:
 3. Set **Framework Preset** → **Other**
 4. Leave all build settings blank (handled by `vercel.json`)
 5. Click **Deploy**
-
-### Option 2 — Render.com
-
-1. Go to [render.com](https://render.com) → **New Web Service**
-2. Connect `arbiahani2-wq/GenoPredict-` from GitHub
-3. Render auto-detects `render.yaml` — no extra config needed
-4. Click **Deploy**
 
 ### Option 3 — Docker
 
