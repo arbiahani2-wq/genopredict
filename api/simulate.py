@@ -26,11 +26,13 @@ _model = None
 def load_model():
     global _model
     if _model is None:
+        if not os.path.exists(MODEL_PATH):
+            raise RuntimeError(f"Model file not found at: {os.path.abspath(MODEL_PATH)}")
         try:
             with open(MODEL_PATH, "rb") as f:
                 _model = pickle.load(f)
-        except FileNotFoundError:
-            return None
+        except Exception as e:
+            raise RuntimeError(f"Failed to load model (possible version mismatch): {e}")
     return _model
 
 
