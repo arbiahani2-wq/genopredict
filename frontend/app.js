@@ -3,12 +3,11 @@
    ========================================================= */
 
 // ── API Configuration ─────────────────────────────────────
-// When deployed on Vercel (frontend only), set RENDER_BACKEND_URL
-// to your Render.com backend URL (e.g. https://genopredict.onrender.com).
-// Leave empty to use the relative /api/simulate (local or full-stack deploy).
-const RENDER_BACKEND_URL = ''; // ← paste your Render URL here after deploying
+// Backend: Hugging Face Spaces (free, no card required)
+// If you deploy on Render/Railway later, replace this URL.
+const RENDER_BACKEND_URL = 'https://haniy5-genopredict.hf.space';
 const API_BASE = RENDER_BACKEND_URL
-  ? RENDER_BACKEND_URL.replace(/\/$/, '')  // strip trailing slash
+  ? RENDER_BACKEND_URL.replace(/\/$/, '')
   : '';
 
 // ── State ─────────────────────────────────────────────────
