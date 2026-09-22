@@ -1,27 +1,12 @@
 {
   "version": 2,
-  "functions": {
-    "api/simulate.py": {
-      "runtime": "python3.12",
-      "maxDuration": 30
-    }
-  },
   "builds": [
-    {
-      "src": "api/simulate.py",
-      "use": "@vercel/python",
-      "config": { "runtime": "python3.12" }
-    },
     {
       "src": "frontend/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
-    {
-      "src": "/api/simulate",
-      "dest": "/api/simulate.py"
-    },
     {
       "src": "/styles.css",
       "dest": "/frontend/styles.css"
