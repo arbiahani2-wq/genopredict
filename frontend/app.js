@@ -4,8 +4,8 @@
 
 // ── API Configuration ─────────────────────────────────────
 // Backend: Hugging Face Spaces (free, no card required)
-// If you deploy on Render/Railway later, replace this URL.
-const RENDER_BACKEND_URL = 'https://haniy5-genopredict.hf.space';
+// Backend: Vercel serverless function (local API)
+const RENDER_BACKEND_URL = '';
 const API_BASE = RENDER_BACKEND_URL
   ? RENDER_BACKEND_URL.replace(/\/$/, '')
   : '';

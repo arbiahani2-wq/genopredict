@@ -18,8 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Model path — relative to project root (where vercel deploys from)
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "alzheimer_rf_model.pkl")
+# Model path — now inside the api/ directory so Vercel bundles it correctly
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "alzheimer_rf_model.pkl")
 
 _model = None
 
