@@ -358,30 +358,27 @@ async function runSimulation() {
   };
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        data: [
-          JSON.stringify(fatherData),
-          JSON.stringify(motherData),
-          body.age,
-          JSON.stringify(body.sex_opts),
-          body.family_history
-        ]
-      })
-    });
-    if (!res.ok) throw new Error('Erreur serveur ' + res.status);
+    // Import Gradio Client dynamically
+    const { Client } = await import("https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js");
     
-    const jsonResponse = await res.json();
+    // Connect to the Hugging Face Space
+    const app = await Client.connect("haniy5/genopredict");
     
-    // Gradio returns data in a "data" array
-    if (!jsonResponse.data || jsonResponse.data.length === 0) {
+    // Send the prediction request
+    const result = await app.predict("/simulate", [
+        JSON.stringify(fatherData),
+        JSON.stringify(motherData),
+        body.age,
+        JSON.stringify(body.sex_opts),
+        body.family_history
+    ]);
+    
+    if (!result || !result.data || result.data.length === 0) {
        throw new Error("Invalid response format from API");
     }
     
     // Parse the JSON string returned by our Python Gradio app
-    const data = JSON.parse(jsonResponse.data[0]);
+    const data = JSON.parse(result.data[0]);
 
     setTimeout(() => {
       setProgress(100);
