@@ -3,12 +3,8 @@
    ========================================================= */
 
 // ── API Configuration ─────────────────────────────────────
-// Backend: Hugging Face Spaces (free, no card required)
-// Backend: Vercel serverless function (local API)
-const RENDER_BACKEND_URL = '';
-const API_BASE = RENDER_BACKEND_URL
-  ? RENDER_BACKEND_URL.replace(/\/$/, '')
-  : '';
+// Backend: Hugging Face Spaces Native Gradio API
+const API_URL = 'https://haniy5-genopredict.hf.space/api/predict';
 
 // ── State ─────────────────────────────────────────────────
 let fatherData = null, motherData = null;
@@ -361,17 +357,31 @@ async function runSimulation() {
     family_history: document.getElementById('fh-toggle')?.checked ? 1 : 0
   };
 
-  // Use configured backend (Render) or local /api/simulate
-  const apiUrl = API_BASE + '/api/simulate';
-
   try {
-    const res = await fetch(apiUrl, {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        data: [
+          JSON.stringify(fatherData),
+          JSON.stringify(motherData),
+          body.age,
+          JSON.stringify(body.sex_opts),
+          body.family_history
+        ]
+      })
     });
     if (!res.ok) throw new Error('Erreur serveur ' + res.status);
-    const data = await res.json();
+    
+    const jsonResponse = await res.json();
+    
+    // Gradio returns data in a "data" array
+    if (!jsonResponse.data || jsonResponse.data.length === 0) {
+       throw new Error("Invalid response format from API");
+    }
+    
+    // Parse the JSON string returned by our Python Gradio app
+    const data = JSON.parse(jsonResponse.data[0]);
 
     setTimeout(() => {
       setProgress(100);
