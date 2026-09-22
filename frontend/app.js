@@ -2,6 +2,15 @@
    app.js — GenoPredict AD v4 · Enhanced UX
    ========================================================= */
 
+// ── API Configuration ─────────────────────────────────────
+// When deployed on Vercel (frontend only), set RENDER_BACKEND_URL
+// to your Render.com backend URL (e.g. https://genopredict.onrender.com).
+// Leave empty to use the relative /api/simulate (local or full-stack deploy).
+const RENDER_BACKEND_URL = ''; // ← paste your Render URL here after deploying
+const API_BASE = RENDER_BACKEND_URL
+  ? RENDER_BACKEND_URL.replace(/\/$/, '')  // strip trailing slash
+  : '';
+
 // ── State ─────────────────────────────────────────────────
 let fatherData = null, motherData = null;
 let gaugeChart = null, histChart = null;
@@ -353,13 +362,16 @@ async function runSimulation() {
     family_history: document.getElementById('fh-toggle')?.checked ? 1 : 0
   };
 
+  // Use configured backend (Render) or local /api/simulate
+  const apiUrl = API_BASE + '/api/simulate';
+
   try {
-    const res  = await fetch('/api/simulate', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
     });
-    if(!res.ok) throw new Error('Erreur serveur ' + res.status);
+    if (!res.ok) throw new Error('Erreur serveur ' + res.status);
     const data = await res.json();
 
     setTimeout(() => {
