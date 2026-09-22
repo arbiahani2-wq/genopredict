@@ -8,6 +8,15 @@ from .logic import run_simulation_and_prediction
 
 app = FastAPI(title="GenoPredict API")
 
+# Satisfy Hugging Face ZeroGPU checks even though we only use CPU for scikit-learn
+try:
+    import spaces
+    @spaces.GPU
+    def dummy_gpu_fn():
+        pass
+except ImportError:
+    pass
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
